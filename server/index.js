@@ -24,14 +24,13 @@ app.get("/", (req, res) => {
 io.on("connection", (socket) => {
   console.log("a user connected");
 
-  io.on("join", (nickName) => {
-    users[socket.id] = nickName;
+  socket.on("join", (nickName) => {
+    users.set(socket.id, nickName);
     console.log(`the user ${nickName} has joined`);
 
-    io.broadcast.emit("message", {
+    io.emit("receiveMessage", {
       sender: "System",
-      content: `${nickName} has joind the chat`,
-      type: "system",
+      message: `${nickName} has joind the chat`,
     });
   });
 
@@ -41,11 +40,9 @@ io.on("connection", (socket) => {
 
     if (disconnectedUser) {
       users.delete(socket.id);
-      console.log(
-        `User ${disconnectedNickname} (${socket.id}) has left the chat.`
-      );
+      console.log(`User ${disconnectedUser} (${socket.id}) has left the chat.`);
 
-      socket.broadcast.emit("message", {
+      socket.broadcast.emit("receiveMessage", {
         sender: "System",
         content: `${disconnectedUser} has left the chat`,
         type: "system",
@@ -54,6 +51,8 @@ io.on("connection", (socket) => {
       console.log(`Unknown user ${socket.id} has left the chat`);
     }
   });
+
+  //TODO: Implementar la lógica de recibir y mostrar el mensaje
 });
 
 const PORT = process.env.PORT || 3001;
