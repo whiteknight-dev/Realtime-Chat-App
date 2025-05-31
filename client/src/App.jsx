@@ -73,6 +73,8 @@ function App() {
     if (socket && isConnected && hasJoinedChat) {
       socket.emit("sendMessage", messageInput.trim());
     }
+
+    event.target.reset();
   };
 
   return (

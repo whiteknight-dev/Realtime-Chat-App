@@ -30,7 +30,7 @@ io.on("connection", (socket) => {
 
     io.emit("receiveMessage", {
       sender: "System",
-      message: `${nickName} has joind the chat`,
+      message: `${nickName} has joined the chat`,
     });
   });
 
@@ -42,10 +42,9 @@ io.on("connection", (socket) => {
       users.delete(socket.id);
       console.log(`User ${disconnectedUser} (${socket.id}) has left the chat.`);
 
-      socket.broadcast.emit("receiveMessage", {
+      io.emit("receiveMessage", {
         sender: "System",
         content: `${disconnectedUser} has left the chat`,
-        type: "system",
       });
     } else {
       console.log(`Unknown user ${socket.id} has left the chat`);
@@ -53,6 +52,23 @@ io.on("connection", (socket) => {
   });
 
   //TODO: Implementar la lógica de recibir y mostrar el mensaje
+  socket.on("sendMessage", (messageContent) => {
+    const senderNickname = users.get(socket.id);
+
+    if (senderNickname) {
+      console.log(`Mensaje de ${senderNickname}: ${messageContent}`);
+
+      io.emit("receiveMessage", {
+        sender: senderNickname,
+        message: messageContent,
+        // TODO: it's possible to add a timestamp
+      });
+    } else {
+      console.log(
+        `Mensaje de usuario no registrado (${socket.id}): ${messageContent}`
+      );
+    }
+  });
 });
 
 const PORT = process.env.PORT || 3001;
