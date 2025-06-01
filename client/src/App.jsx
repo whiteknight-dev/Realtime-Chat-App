@@ -4,6 +4,7 @@ import { io } from "socket.io-client";
 import ConnectedUsersList from "./components/ConnectedUsersList";
 import { useChatStore } from "./store/chatStore";
 import Chat from "./components/Chat";
+import { useUserStore } from "./store/userStore";
 
 const SOCKET_SERVER_URL = "http://localhost:3001";
 
@@ -13,7 +14,9 @@ function App() {
   const [nickname, setNickname] = useState("");
   const [hasJoinedChat, setHasJoinedChat] = useState(false);
   const addNewMessage = useChatStore((state) => state.addNewMessage);
-  const [connectedUsers, setConnectedUsers] = useState([]);
+  const updateConnectedUsers = useUserStore(
+    (state) => state.updateConnectedUsers
+  );
 
   useEffect(() => {
     const newSocket = io(SOCKET_SERVER_URL);
@@ -35,7 +38,7 @@ function App() {
     });
 
     newSocket.on("updateUsersList", (actualUsers) => {
-      setConnectedUsers(actualUsers);
+      updateConnectedUsers(actualUsers);
     });
 
     setSocket(newSocket);
@@ -84,10 +87,10 @@ function App() {
           nickname={nickname}
           socket={socket}
           isConnected={isConnected}
-          hasJoinedChat={handleJoinChat}
+          hasJoinedChat={hasJoinedChat}
         />
       )}
-      <ConnectedUsersList connectedUsers={connectedUsers} />
+      <ConnectedUsersList />
     </div>
   );
 }

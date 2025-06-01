@@ -1,4 +1,8 @@
-function ConnectedUsersList({ connectedUsers }) {
+import { useUserStore } from "../store/userStore";
+
+function ConnectedUsersList() {
+  const connectedUsers = useUserStore((state) => state.connectedUsers);
+
   return (
     <aside>
       <ul>
