@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const { createServer } = require("http");
+const { createServer, get } = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 
@@ -16,11 +16,14 @@ const io = new Server(server, {
 app.use(cors());
 
 const users = new Map();
-let connectedUsers = [];
 
 app.get("/", (req, res) => {
   res.send("The server is running");
 });
+
+function getConnectedNicknames() {
+  return Array.from(users.values());
+}
 
 io.on("connection", (socket) => {
   console.log("a user connected");
@@ -28,25 +31,19 @@ io.on("connection", (socket) => {
   socket.on("join", (nickName) => {
     nickName = nickName.trim();
     users.set(socket.id, nickName);
-    connectedUsers = [...connectedUsers, nickName];
     console.log(`the user ${nickName} has joined`);
 
     io.emit("receiveMessage", {
       sender: "System",
       message: `${nickName} has joined the chat`,
     });
-    io.emit("updateUsersList", {
-      connectedUsers,
-    });
+
+    io.emit("updateUsersList", getConnectedNicknames());
   });
 
   socket.on("disconnect", () => {
     console.log("a user disconnected");
     const disconnectedUser = users.get(socket.id);
-    const userIndex = connectedUsers.findIndex(
-      (user) => user === disconnectedUser
-    );
-    connectedUsers.splice(userIndex, 1);
 
     if (disconnectedUser) {
       users.delete(socket.id);
@@ -57,9 +54,7 @@ io.on("connection", (socket) => {
         message: `${disconnectedUser} has left the chat`,
       });
 
-      io.emit("updateUsersList", {
-        connectedUsers,
-      });
+      io.emit("updateUsersList", getConnectedNicknames());
     } else {
       console.log(`Unknown user ${socket.id} has left the chat`);
     }

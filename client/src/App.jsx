@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { io } from "socket.io-client";
-import { useRef } from "react";
 import ConnectedUsersList from "./components/ConnectedUsersList";
 import { useChatStore } from "./store/chatStore";
+import Chat from "./components/Chat";
 
 const SOCKET_SERVER_URL = "http://localhost:3001";
 
@@ -12,11 +12,8 @@ function App() {
   const [socket, setSocket] = useState(null);
   const [nickname, setNickname] = useState("");
   const [hasJoinedChat, setHasJoinedChat] = useState(false);
-  const { messages, addNewMessage } = useChatStore();
+  const addNewMessage = useChatStore((state) => state.addNewMessage);
   const [connectedUsers, setConnectedUsers] = useState([]);
-
-  // ref to automatically scroll to the bottom
-  const messageEndRef = useRef(null);
 
   useEffect(() => {
     const newSocket = io(SOCKET_SERVER_URL);
@@ -37,7 +34,7 @@ function App() {
       addNewMessage(message);
     });
 
-    newSocket.on("updateUsersList", ({ actualUsers }) => {
+    newSocket.on("updateUsersList", (actualUsers) => {
       setConnectedUsers(actualUsers);
     });
 
@@ -49,10 +46,6 @@ function App() {
       }
     };
   }, []);
-
-  useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   const handleJoinChat = (event) => {
     event.preventDefault();
@@ -68,20 +61,6 @@ function App() {
     } else {
       console.log("Unable to connect");
     }
-  };
-
-  const handleSendMessage = (event) => {
-    event.preventDefault();
-
-    const { messageInput } = Object.fromEntries(new FormData(event.target));
-
-    if (messageInput.trim() === "") return;
-
-    if (socket && isConnected && hasJoinedChat) {
-      socket.emit("sendMessage", messageInput.trim());
-    }
-
-    event.target.reset();
   };
 
   return (
@@ -101,25 +80,12 @@ function App() {
           <button>Join the chat</button>
         </form>
       ) : (
-        <div className="chat-container">
-          <h2>Welcome to the chat {nickname}</h2>
-          <div>
-            {messages.map((msg, index) => (
-              <div key={index}>
-                <span>{msg.sender}</span> - {msg.message}
-              </div>
-            ))}
-            <div ref={messageEndRef} />
-          </div>
-          <form onSubmit={handleSendMessage}>
-            <input
-              type="text"
-              name="messageInput"
-              placeholder="my message..."
-            />
-            <button>Send message</button>
-          </form>
-        </div>
+        <Chat
+          nickname={nickname}
+          socket={socket}
+          isConnected={isConnected}
+          hasJoinedChat={handleJoinChat}
+        />
       )}
       <ConnectedUsersList connectedUsers={connectedUsers} />
     </div>
