@@ -16,7 +16,7 @@ const io = new Server(server, {
 app.use(cors());
 
 const users = new Map();
-const connectedUsers = [];
+let connectedUsers = [];
 
 app.get("/", (req, res) => {
   res.send("The server is running");

@@ -3,6 +3,7 @@ import "./App.css";
 import { io } from "socket.io-client";
 import { useRef } from "react";
 import ConnectedUsersList from "./components/ConnectedUsersList";
+import { useChatStore } from "./store/chatStore";
 
 const SOCKET_SERVER_URL = "http://localhost:3001";
 
@@ -11,7 +12,7 @@ function App() {
   const [socket, setSocket] = useState(null);
   const [nickname, setNickname] = useState("");
   const [hasJoinedChat, setHasJoinedChat] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const { messages, addNewMessage } = useChatStore();
   const [connectedUsers, setConnectedUsers] = useState([]);
 
   // ref to automatically scroll to the bottom
@@ -33,10 +34,10 @@ function App() {
 
     newSocket.on("receiveMessage", (message) => {
       console.log("message: ", message);
-      setMessages((prevMessages) => [...prevMessages, message]);
+      addNewMessage(message);
     });
 
-    newSocket.on("updateUsersList", (actualUsers) => {
+    newSocket.on("updateUsersList", ({ actualUsers }) => {
       setConnectedUsers(actualUsers);
     });
 
