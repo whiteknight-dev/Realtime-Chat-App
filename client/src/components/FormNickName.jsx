@@ -1,20 +1,34 @@
-function FormNickName({ socket }) {
-  const handleSubmit = (event) => {
+import { useConnectionStore } from "../store/connectionStore";
+
+function FormNickName() {
+  const { socket, isConnected, setNickname, changeHasJoinedChatStatus } =
+    useConnectionStore();
+
+  const handleJoinChat = (event) => {
     event.preventDefault();
 
     const { nickname } = Object.fromEntries(new FormData(event.target));
 
-    // validate the nickname
-    if (!nickname) return "Insert a valid nickname";
-    if (nickname.length < 3)
-      return "The nickname needs to have at least 4 characters";
+    if (nickname.trim() === "") return "Please, insert a nickname";
 
-    socket.emit("join", { nickname });
+    if (socket && isConnected) {
+      socket.emit("join", nickname.trim());
+      setNickname(nickname.trim());
+      changeHasJoinedChatStatus();
+    } else {
+      console.log("Unable to connect");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" name="nickname" />
+    <form onSubmit={handleJoinChat}>
+      <label htmlFor="nickname">Insert a nickname: </label>
+      <input
+        type="text"
+        name="nickname"
+        id="nickname"
+        placeholder="John Doe..."
+      />
       <button>Join the chat</button>
     </form>
   );

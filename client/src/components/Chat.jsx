@@ -1,8 +1,10 @@
 import { useChatStore } from "../store/chatStore";
 import { useRef, useEffect } from "react";
+import { useConnectionStore } from "../store/connectionStore";
 
-function Chat({ nickname, socket, isConnected, hasJoinedChat }) {
+function Chat() {
   const messages = useChatStore((state) => state.messages);
+  const { socket, isConnected, hasJoinedChat, nickname } = useConnectionStore();
 
   // ref to automatically scroll to the bottom
   const messageEndRef = useRef(null);
