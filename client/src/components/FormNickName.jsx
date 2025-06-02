@@ -14,7 +14,7 @@ function FormNickName() {
     if (socket && isConnected) {
       socket.emit("join", nickname.trim());
       setNickname(nickname.trim());
-      changeHasJoinedChatStatus();
+      changeHasJoinedChatStatus(true);
     } else {
       console.log("Unable to connect");
     }

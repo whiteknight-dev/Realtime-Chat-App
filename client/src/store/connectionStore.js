@@ -5,13 +5,12 @@ export const useConnectionStore = create((set) => ({
   isConnected: false,
   nickname: "",
   hasJoinedChat: false,
-  changeConnectionStatus: () => {
-    set((state) => ({
-      isConnected: !state.isConnected,
-    }));
+  changeConnectionStatus: (status) => {
+    set({
+      isConnected: status,
+    });
   },
-  changeHasJoinedChatStatus: () =>
-    set((state) => ({ hasJoinedChat: !state.hasJoinedChat })),
+  changeHasJoinedChatStatus: (status) => set({ hasJoinedChat: status }),
   setNickname: (newNickname) => set({ nickname: newNickname }),
   setSocket: (newSocket) => set({ socket: newSocket }),
 }));

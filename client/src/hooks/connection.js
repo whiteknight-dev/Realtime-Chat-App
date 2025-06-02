@@ -18,13 +18,13 @@ export function useConnection() {
     const newSocket = io(SOCKET_SERVER_URL);
 
     newSocket.on("connect", () => {
-      changeConnectionStatus();
+      changeConnectionStatus(true);
       console.log("The server is connected");
     });
 
     newSocket.on("disconnect", () => {
-      changeConnectionStatus();
-      changeHasJoinedChatStatus(); //reset if disconnected
+      changeConnectionStatus(false);
+      changeHasJoinedChatStatus(false); //reset if disconnected
       console.log("The server is disconnected");
     });
 
@@ -41,6 +41,10 @@ export function useConnection() {
 
     return () => {
       if (newSocket) {
+        newSocket.off("connect");
+        newSocket.off("disconnect");
+        newSocket.off("receiveMessage");
+        newSocket.off("updateUsersList");
         newSocket.disconnect();
       }
     };
