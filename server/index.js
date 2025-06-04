@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const { createServer, get } = require("http");
+const { createServer } = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 
@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// TODO: test the 4th fase
+// TODO: test the 6th fase
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
